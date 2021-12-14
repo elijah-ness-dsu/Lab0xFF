@@ -24,12 +24,12 @@ HostApplication=
 UseCustomMakefile=0
 CustomMakefile=
 CommandLine=
-Folders=utilities
+Folders=algorithm,input,time_test,utility,verification_test
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;1;0;0;0;8;0;0;0
-UnitCount=7
+UnitCount=11
 
 [VersionInfo]
 Major=1
@@ -53,7 +53,7 @@ SyncProduct=1
 [Unit3]
 FileName=utility\makegraph.c
 CompileCpp=0
-Folder=utilities
+Folder=utility
 Compile=1
 Link=1
 Priority=1000
@@ -62,7 +62,7 @@ BuildCmd=
 
 [Unit4]
 FileName=utility\makegraph.h
-Folder=utilities
+Folder=utility
 Compile=1
 Link=1
 Priority=1000
@@ -73,7 +73,7 @@ CompileCpp=0
 [Unit5]
 FileName=utility\resource.h
 CompileCpp=0
-Folder=utilities
+Folder=utility
 Compile=1
 Link=1
 Priority=1000
@@ -83,7 +83,7 @@ BuildCmd=
 [Unit1]
 FileName=utility\plotgraph.c
 CompileCpp=0
-Folder=utilities
+Folder=utility
 Compile=1
 Link=1
 Priority=1000
@@ -92,7 +92,7 @@ BuildCmd=
 
 [Unit2]
 FileName=utility\icons.rc
-Folder=utilities
+Folder=utility
 Compile=1
 Link=0
 Priority=1000
@@ -102,7 +102,7 @@ BuildCmd=
 [Unit6]
 FileName=utility\changearray.c
 CompileCpp=0
-Folder=utilities
+Folder=utility
 Compile=1
 Link=1
 Priority=1000
@@ -112,7 +112,47 @@ BuildCmd=
 [Unit7]
 FileName=utility\changearray.h
 CompileCpp=0
-Folder=utilities
+Folder=utility
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit8]
+FileName=algorithm\bruteforce.c
+CompileCpp=0
+Folder=algorithm
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=$(CC) -c bruteforce.c -o bruteforce.o $(CFLAGS)
+
+[Unit9]
+FileName=utility\plotgraph.h
+CompileCpp=0
+Folder=utility
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit10]
+FileName=verification_test\verify_exact.c
+CompileCpp=0
+Folder=verification_test
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit11]
+FileName=algorithm\bruteforce.h
+CompileCpp=0
+Folder=algorithm
 Compile=1
 Link=1
 Priority=1000

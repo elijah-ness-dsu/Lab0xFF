@@ -6,10 +6,20 @@
 // Avoid having to repeat prototypes
 #include "changearray.h"
 
-// Function to swap to values in an array
+// Function to swap to integer values in an array
 // a: A pointer (memory location) to the first item to be swapped
 // b: A pointer (memory location) to the other item to be swapped
-void swap (double *a, double *b)
+void swapInts(int *a, int *b)
+{
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+// Function to swap to double values in an array
+// a: A pointer (memory location) to the first item to be swapped
+// b: A pointer (memory location) to the other item to be swapped
+void swapDoubles(double *a, double *b)
 {
     double temp = *a;
     *a = *b;
@@ -33,6 +43,6 @@ void randomize(double array[], int n, int seed)
         int j = (rand() % i) + 1;
  
         // Swap array[i] with the element at random index
-        swap(&array[i], &array[j]);
+        swapDoubles(&array[i], &array[j]);
     }
 }

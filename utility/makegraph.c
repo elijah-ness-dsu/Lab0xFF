@@ -5,6 +5,7 @@
 
 // Include local dependencies
 #include "changearray.h"
+#include "plotgraph.h"
 
 // Avoid having to repeat prototype
 #include "makegraph.h"
@@ -87,6 +88,10 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 			}
 		}
 	}
+	
+	#if PLOT_GRAPH == 1
+		ShowGraph(N, xArray, yArray, matrix);
+	#endif
 }
 
 // Function to generate a circular Euclidean graph 
@@ -201,6 +206,10 @@ int readCostMatrixFromFile(double **matrix, char *fileName)
 	
 	// Close the file
 	fclose(fp);
+	
+	#if PLOT_GRAPH == 1
+		ShowGraph(N, xArray, yArray, matrix);
+	#endif
 	
 	// Return the number of nodes in the graph
 	return N;

@@ -1,35 +1,30 @@
-// For best results, leave parameters untouched
+// PARAMETERS
+// FOR BEST RESULTS, LEAVE UNTOUCHED SO DRAWING DISPLAYS CLEARLY
 #define PLOT_SIZE 634	// Add 4 for some reason..
 #define NODE_DIAMETER 30
+// END PARAMETERS
 
+// Include Win32 and GDI
 #include <Windows.h>
 #include <wingdi.h>
+
+// Include standard libraries
 #include <stdio.h>
 #include <math.h>
 
+// Include local dependencies
 #include "resource.h"
 
-const char g_szClassName[] = "plotWindowClass";
+// Avoid declaring prototypes twice
+#include "plotgraph.h"
 
-int nodes = 5;
-double coordX[5] = {0.296030, 46.122623, 93.621632, 96.502579, 38.901944};
-double coordY[5] = {13.983581, 29.273354, 51.704459, 37.726981, 55.699332};
-double edges[5][5] = {
-	-1.0, 48.309977, 100.660482, 99.093134, 56.838547,
-	-1.0, -1.0, 52.529137, 51.084281, 27.394716,
-	-1.0, -1.0, -1.0, 14.271290, 54.865319,
-	-1.0, -1.0, -1.0, -1.0, 60.339361
-	-1.0, -1.0, -1.0, -1.0, -1.0
-};
+// Declare globals
+int nodes;
+double *coordX;
+double *coordY;
+double *edges;
 
-//int nodes = 2;
-//double coordX[2] = {0.0, 100.0};
-//double coordY[2] = {0.0, 100.0};
-//
-//double edges[2][2] = {
-//	0.0, 141.421356237,
-//	141.421356237, 0.0
-//};
+
 
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -101,7 +96,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				textRect.right = NODE_DIAMETER/2 + lround((6.0 * coordX[i] + NODE_DIAMETER/2));
 				textRect.bottom = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[i])) + NODE_DIAMETER/2 + 4.0);
 				
-				DrawText(hdc, &text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+				DrawText(hdc, text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
 			}
 			
    			EndPaint(hWnd, &ps);
@@ -116,8 +111,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-int ShowPlot()//HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int ShowPlot(int N, int *arrayX, int *arrayY, double **matrix)
 {
+	// CHECK THESE?!?
+	nodes = N;
+	coordX = arrayX;
+	coordY = arrayY;
+	matrix = (*matrix);
+	
+	
 	HINSTANCE hInstance;
     WNDCLASSEX wc;
     HWND hwnd;
@@ -133,7 +135,7 @@ int ShowPlot()//HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, i
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.lpszMenuName  = NULL;
-    wc.lpszClassName = g_szClassName;
+    wc.lpszClassName = "plotWindowClass";
     
     wc.hIcon         = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
     wc.hIconSm       = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
@@ -156,7 +158,7 @@ int ShowPlot()//HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, i
     // Step 2: Creating the Window
     hwnd = CreateWindowEx(
         WS_EX_CLIENTEDGE,
-        g_szClassName,
+        "plotWindowClass",
         "Graph Plot",
         WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT,
@@ -180,9 +182,4 @@ int ShowPlot()//HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, i
         DispatchMessage(&Msg);
     }
     return Msg.wParam;
-}
-
-int main()
-{
-	ShowPlot();
 }
