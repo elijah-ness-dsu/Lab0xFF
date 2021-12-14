@@ -6,4 +6,4 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 void swap (double *a, double *b);
 void randomize(double array[], int n, int seed);
 void generateRandomCircularGraphCostMatrix(int N, double **matrix, double radius, int seed);
-void readCostMatrixFromFile(double **matrix);
+int readCostMatrixFromFile(double **matrix, char *fileName);

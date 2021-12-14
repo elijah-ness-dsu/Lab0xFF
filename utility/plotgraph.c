@@ -135,8 +135,8 @@ int ShowPlot()//HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, i
     wc.lpszMenuName  = NULL;
     wc.lpszClassName = g_szClassName;
     
-    wc.hIcon         = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON32));
-    wc.hIconSm       = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON32));
+    wc.hIcon         = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
+    wc.hIconSm       = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
 	
 	
     if(!RegisterClassEx(&wc))

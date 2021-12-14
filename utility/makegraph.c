@@ -174,6 +174,7 @@ int readCostMatrixFromFile(double **matrix, char *fileName)
 	{
 		printf("Error: Graph specified in file \"%s\" is not complete and the Edge Cost Matrix cannot be completed.\n", fileName);
 		printf("Required %d edges but got %d.", requiredEdges, edges);
+		exit(1);
 	}
 	
 	// Init the array with zeroes
