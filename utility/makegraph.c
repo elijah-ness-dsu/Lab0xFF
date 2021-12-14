@@ -49,11 +49,11 @@ void generateRandomCostMatrix(int N, double **matrix, double maxRand, int seed)
 // matrix: 		A pointer to be used to pass the array back to the caller.
 // maxRand: 	The maxmimum random double value that can be generated for an x or y position (assume square space).
 // seed: 		The seed the random generator is to use.
-void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, int seed, int plotGraph)
+void generateRandomEuclideanCostMatrix(int N, double **matrix, double **xArray, double **yArray, double maxRand, int seed)
 {
 	// Create arrays for the x, y coordinates of each node
-	double *xArray = malloc(N * sizeof(double));
-	double *yArray = malloc(N * sizeof(double));
+	(*xArray) = malloc(N * sizeof(double));
+	(*yArray) = malloc(N * sizeof(double));
 	
 	// Init the array with zeroes
 	(*matrix) = calloc((N * N), sizeof(double));
@@ -64,8 +64,8 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 	// Fill coordinate arrays with random values up to maxRand.
 	for (int i = 0; i < N; ++i)
 	{
-		xArray[i] = ((double)rand()/(double)(RAND_MAX)) * maxRand;
-		yArray[i] = ((double)rand()/(double)(RAND_MAX)) * maxRand;
+		(*xArray)[i] = ((double)rand()/(double)(RAND_MAX)) * maxRand;
+		(*yArray)[i] = ((double)rand()/(double)(RAND_MAX)) * maxRand;
 	}
 	
 	// Generate the symmetrical graph, using -1 to represent absent costs (such as for self edges)
@@ -76,7 +76,7 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 		{
 			if (j > i)
 			{ 
-				(*matrix)[i*N + j] = pow(pow(xArray[i]-xArray[j], 2) + pow(yArray[i]-yArray[j], 2), 0.5);
+				(*matrix)[i*N + j] = pow(pow((*xArray)[i]-(*xArray)[j], 2) + pow((*yArray)[i]-(*yArray)[j], 2), 0.5);
 			} 
 			else if (j < i)
 			{
@@ -88,9 +88,6 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 			}
 		}
 	}
-	
-	if (plotGraph == 1)
-		CreatePlot(N, xArray, yArray, matrix, 0);
 }
 
 // Function to generate a circular Euclidean graph 
@@ -98,11 +95,11 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 // matrix: 		A pointer to be used to pass the array back to the caller.
 // radius:		The size of the radius of the circle
 // seed: 		The seed the random generator is to use.
-void generateRandomCircularGraphCostMatrix(int N, double **matrix, double radius, int seed)
+void generateRandomCircularGraphCostMatrix(int N, double **matrix, double **xArray, double **yArray, double radius, int seed)
 {
 	// Create arrays for the x, y coordinates of each node
-	double *xArray = malloc(N * sizeof(double));
-	double *yArray = malloc(N * sizeof(double));
+	(*xArray) = malloc(N * sizeof(double));
+	(*yArray) = malloc(N * sizeof(double));
 	
 	// Init the array with zeroes
 	(*matrix) = calloc((N * N), sizeof(double));
@@ -114,14 +111,14 @@ void generateRandomCircularGraphCostMatrix(int N, double **matrix, double radius
 	for (int i = 0; i < N; ++i)
 	{
 		double stepAngle = 2 * M_PI/(double)N ;
-		xArray[i] = radius * sin((double)(i+1) * stepAngle);
-		yArray[i] = radius * cos((double)(i+1) * stepAngle);
+		(*xArray)[i] = radius * sin((double)(i+1) * stepAngle);
+		(*yArray)[i] = radius * cos((double)(i+1) * stepAngle);
 	}
 	
 	// Randomize both x,y coordinate arrays with the same seed
 	// Should always randomize both array's indexes exactly the same to keep x,y pair integrity
-	randomize(xArray, N, seed);
-	randomize(yArray, N, seed);
+	randomize(*xArray, N, seed);
+	randomize(*yArray, N, seed);
 	
 	// Generate Euclidean edges connecting each node
 	for (int i = 0; i < N; ++i)
@@ -130,7 +127,7 @@ void generateRandomCircularGraphCostMatrix(int N, double **matrix, double radius
 		{
 			if (j > i)
 			{ 
-				(*matrix)[i*N + j] = pow(pow(xArray[i]-xArray[j], 2) + pow(yArray[i]-yArray[j], 2), 0.5);
+				(*matrix)[i*N + j] = pow(pow((*xArray)[i]-(*xArray)[j], 2) + pow((*yArray)[i]-(*yArray)[j], 2), 0.5);
 			} 
 			else if (j < i)
 			{
@@ -142,6 +139,7 @@ void generateRandomCircularGraphCostMatrix(int N, double **matrix, double radius
 			}
 		}
 	}
+	
 }
 
 // Function to read in a Euclidean graph from a file
@@ -157,7 +155,7 @@ void generateRandomCircularGraphCostMatrix(int N, double **matrix, double radius
 // node node edgeCost
 // ... (E times)
 
-int readCostMatrixFromFile(double **matrix, char *fileName)
+int readCostMatrixFromFile(double **matrix, const char *fileName)
 {
 	// Open the file in read mode
 	FILE *fp;
@@ -170,13 +168,13 @@ int readCostMatrixFromFile(double **matrix, char *fileName)
 	// Scan in number of nodes and edges
 	fscanf(fp, "%d", &N);
 	fscanf(fp, "%d", &edges);
-	
+
 	// Check if the graph is complete
 	// There must be n(n-1)/2 edges in a complete graph
 	int requiredEdges = N * (N - 1) / 2;
 	if (edges != N * (N - 1) / 2)
 	{
-		printf("Error: Graph specified in file \"%s\" is not complete and the Edge Cost Matrix cannot be completed.\n", fileName);
+		printf("Error: Graph specified in file \"%s\" is not complete and the Edge Cost Matrix cannot be created.\n", fileName);
 		printf("Required %d edges but got %d.", requiredEdges, edges);
 		exit(1);
 	}

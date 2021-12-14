@@ -1,8 +1,12 @@
 // PARAMETERS
 // FOR BEST RESULTS, LEAVE UNTOUCHED SO DRAWING DISPLAYS CLEARLY
-#define PLOT_SIZE 634	// Add 4 for some reason..
+#define PLANE_SIZE 600
 #define NODE_DIAMETER 30
+#define PLOT_SIZE (PLANE_SIZE+NODE_DIAMETER+4)	// Add 4 for some reason..
 // END PARAMETERS
+
+
+
 
 // Include Win32 and GDI
 #include <Windows.h>
@@ -26,6 +30,8 @@ double *edges_plot;
 int algorithm_plot;		// Used to color lines. 0-2 Initial (not solution), Exact, Hueristic
 int *printOrder_plot;
 
+int type_plot;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch(msg)
@@ -47,6 +53,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetBkMode(hdc, 1);
 			SelectObject(hdc, GetStockObject(DC_PEN));
 			
+			int offset;
+			// If the graph is standard
+			if (type_plot == 0)
+			{
+				offset = 0;
+			}
+			else if (type_plot == 1)
+			{
+				offset = (PLANE_SIZE)/2;
+			}
+			else
+			{
+				printf("Error: Parameter plotType must be in range 0-1.\n");
+				exit(1);
+			}
+			
 			if (algorithm_plot > 0)
 			{
 				if (algorithm_plot == 2)
@@ -57,13 +79,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				// Account for going back to final 0 in the solution table
 				for (int j = 1; j < nodes_plot; ++j)
 				{
-					MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[j-1]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0), NULL);
-					LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
+					MoveToEx(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j-1]])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0), NULL);
+					LineTo(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
 					
 					char text[7];
 					sprintf(text, "%6.2lf", edges_plot[printOrder_plot[j-1]*nodes_plot + (printOrder_plot[j])]);
-					int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j-1]]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[j]]))) / 2;
-					int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0)))/2;
+					int x = offset + ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j-1]]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[j]]))) / 2;
+					int y = PLOT_SIZE - (offset + (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0)))/2);
 					RECT textRect;
 						textRect.left = x - NODE_DIAMETER;
 						textRect.top = y - NODE_DIAMETER;
@@ -254,7 +276,7 @@ int ShowWin()
     return Msg.wParam;
 }
 
-int ShowPlot(int N, double **bestOrder, int algType)
+int ShowPathPlot(int N, int **bestOrder, int algType)
 {
 	// Pass the parameters into the globals for updated information 
 	nodes_plot = N;
@@ -264,13 +286,14 @@ int ShowPlot(int N, double **bestOrder, int algType)
 	ShowWin();
 }
 
-int CreatePlot(int N, double *arrayX, double *arrayY, double **matrix, int algType)
+int MakeGraphPlot(int N, double **matrix, double *arrayX, double *arrayY, int plotType, int algType)
 {
 	// Pass the parameters into the global variables
 	nodes_plot = N;
+	edges_plot = (*matrix);
 	coordX_plot = arrayX;
 	coordY_plot = arrayY;
-	edges_plot = (*matrix);
+	type_plot = plotType;
 	algorithm_plot = algType;
 	
 	ShowWin();
