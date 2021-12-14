@@ -1,0 +1,10 @@
+# Exclude the following file types
+*.o
+*.out
+*.win
+*.layout
+*.exe
+
+Lab0xFF_private.h
+Lab0xFF_private.rc
+Lab0xFF_private.res
