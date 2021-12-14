@@ -9,27 +9,27 @@
 // Avoid redundant prototypes
 #include "bruteforce.h"
 
-void bruteForce(double **matrix, int start, int end, int **bestOrder, int **currentOrder, double *bestTotal)
+void bruteForce(double **matrix, int start, int N, int **bestOrder, int **currentOrder, double *bestTotal)
 {	
-	if (start == end)
+	if (start == N-1)
 	{
 		double currentTotal = 0;
-		for (int i = 0; i < end; ++i)
-			currentTotal += (*matrix)[(*currentOrder)[i]*(end+1) + (*currentOrder)[i + 1]];
-		currentTotal += (*matrix)[(*currentOrder)[end]*(end+1) + (*currentOrder)[end + 1]];
+		for (int i = 0; i < N-1; ++i)
+			currentTotal += (*matrix)[(*currentOrder)[i]*(N) + (*currentOrder)[i + 1]];
+		currentTotal += (*matrix)[(*currentOrder)[N-1]*(N) + (*currentOrder)[N]];
 		
 		if (currentTotal < *bestTotal)
 		{
 			*bestTotal = currentTotal;
-			memcpy((*bestOrder), (*currentOrder), sizeof(int) * (end + 1));
+			memcpy((*bestOrder), (*currentOrder), sizeof(int) * (N));
 		}
 	}
 	else
 	{
-    	for (int i = start; i < end; i++)
+    	for (int i = start; i < N-1; i++)
     	{
         	swapInts((&(*currentOrder)[start + 1]), (&(*currentOrder)[i] + 1));
-        	bruteForce(matrix, start + 1, end, bestOrder, currentOrder, bestTotal);
+        	bruteForce(matrix, start + 1, N, bestOrder, currentOrder, bestTotal);
         	swapInts((&(*currentOrder)[start + 1]), (&(*currentOrder)[i] + 1));
     	}
 	}

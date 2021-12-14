@@ -14,7 +14,7 @@
 
 #define SEED 1255225
 #define NODES 6
-#define ALG 0
+#define ALG 1
 
 #if ALG == 0 || ALG == 2
 	#define ALG_TYPE 1
@@ -39,15 +39,11 @@
 int main()
 {
 	int *bestOrder;
-	int *currentOrder;
-
-	double *bestTotal = malloc(sizeof(double));
-	*bestTotal = DBL_MAX; // Max value of an double
+	bestOrder = calloc((NODES+1), sizeof(int));
+	
+	double *bestTotal = calloc(1, sizeof(double));
 	
 	double *matrix;
-	
-	bestOrder = calloc((NODES+1), sizeof(int));
-	currentOrder = malloc((NODES+1) * sizeof(int));
 	
 	generateRandomEuclideanCostMatrix(NODES, &matrix, 100, SEED, PLOT_GRAPH);
 	
@@ -56,26 +52,45 @@ int main()
 		printf("%f ", matrix[i]);
 	printf("\n--------------------\n\n");
 	
-	for (int i = 0; i < NODES; ++i)
-		currentOrder[i] = i;
+	if (ALG == 0)
+	{
+		int *currentOrder = malloc((NODES+1) * sizeof(int));
+		for (int i = 0; i < NODES; ++i)
+			currentOrder[i] = i;
+		currentOrder[NODES] = 0;
 		
-	currentOrder[NODES] = 0;
-	
-	
-	bruteForce(&matrix, 0, NODES - 1, &bestOrder, &currentOrder, bestTotal);
+		*bestTotal = DBL_MAX; // Max value of an double
+		
+		bruteForce(&matrix, 0, NODES, &bestOrder, &currentOrder, bestTotal);
+		
+		free(currentOrder);
+	}
+	else if (ALG == 1)
+	{
+		greedy(&matrix, NODES, &bestOrder, bestTotal);
+	}
+	else if (ALG == 2)
+	{
+	}
+	else if (ALG == 3)
+	{
+	}
+	else
+	{
+		printf("Error: ALG macro must be in rangee 0-3.\n");
+	}
 	
 	ShowPlot(NODES, &bestOrder, ALG_TYPE);
 	
-	printf("Best order: ");
+	printf("Solution node order: ");
 	for (int i = 0; i <= NODES; ++i)
 	{
 		printf("%d ", bestOrder[i]);
 	}
-	
 	printf("\n");
+	printf("Solution path cost: %.2lf\n", *bestTotal);
 	
 	free(bestOrder);
-	free(currentOrder);
 	free(bestTotal);
 	free(matrix);
 	return 0;
