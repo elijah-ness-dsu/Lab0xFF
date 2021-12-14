@@ -49,7 +49,7 @@ void generateRandomCostMatrix(int N, double **matrix, double maxRand, int seed)
 // matrix: 		A pointer to be used to pass the array back to the caller.
 // maxRand: 	The maxmimum random double value that can be generated for an x or y position (assume square space).
 // seed: 		The seed the random generator is to use.
-void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, int seed)
+void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, int seed, int plotGraph)
 {
 	// Create arrays for the x, y coordinates of each node
 	double *xArray = malloc(N * sizeof(double));
@@ -89,9 +89,8 @@ void generateRandomEuclideanCostMatrix(int N, double **matrix, double maxRand, i
 		}
 	}
 	
-	#if PLOT_GRAPH == 1
-		ShowGraph(N, xArray, yArray, matrix);
-	#endif
+	if (plotGraph == 1)
+		CreatePlot(N, xArray, yArray, matrix, 0);
 }
 
 // Function to generate a circular Euclidean graph 
@@ -206,10 +205,6 @@ int readCostMatrixFromFile(double **matrix, char *fileName)
 	
 	// Close the file
 	fclose(fp);
-	
-	#if PLOT_GRAPH == 1
-		ShowGraph(N, xArray, yArray, matrix);
-	#endif
 	
 	// Return the number of nodes in the graph
 	return N;

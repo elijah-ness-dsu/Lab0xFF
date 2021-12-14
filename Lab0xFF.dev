@@ -123,8 +123,8 @@ BuildCmd=
 FileName=algorithm\bruteforce.c
 CompileCpp=0
 Folder=algorithm
-Compile=0
-Link=0
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=$(CC) -c bruteforce.c -o bruteforce.o $(CFLAGS)
@@ -140,7 +140,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit10]
-FileName=verification_test\verify_exact.c
+FileName=verification_test\verify.c
 CompileCpp=0
 Folder=verification_test
 Compile=1

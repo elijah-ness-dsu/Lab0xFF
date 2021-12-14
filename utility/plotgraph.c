@@ -19,89 +19,158 @@
 #include "plotgraph.h"
 
 // Declare globals
-int nodes;
-double *coordX;
-double *coordY;
-double *edges;
+int nodes_plot;
+double *coordX_plot;
+double *coordY_plot;
+double *edges_plot;
+int algorithm_plot;		// Used to color lines. 0-2 Initial (not solution), Exact, Hueristic
+int *printOrder_plot;
 
-
-
-// Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	//RECT ClientRect;
-	//GetClientRect(hWnd, &ClientRect);
-	//printf("DIMENSIONS: %d %d %d %d", ClientRect.left, ClientRect.top, ClientRect.right, ClientRect.bottom);
-	
     switch(msg)
     {
+    	// Create structures for GDI drawing
     	HDC hdc;
     	PAINTSTRUCT ps;
     	
+    	// Interpret messages
         case WM_CLOSE:
             DestroyWindow(hWnd);
         	break;
         case WM_PAINT:
         	
+        	// Initialize painting
         	hdc = BeginPaint(hWnd, &ps);
 			
-			// Set transparency to transparent and color to red
+			// Set transparency to transparent
 			SetBkMode(hdc, 1);
 			SelectObject(hdc, GetStockObject(DC_PEN));
-			SetDCPenColor(hdc, RGB(255,0,0));
 			
-			
-			for (int j = 0; j < nodes; ++j)
+			if (algorithm_plot > 0)
 			{
-				for (int k = j + 1; k < nodes; ++k)
+				if (algorithm_plot == 2)
+					SetDCPenColor(hdc, RGB(0,0,255));
+				else
+					SetDCPenColor(hdc, RGB(0,255,0));
+
+				// Account for going back to final 0 in the solution table
+				for (int j = 1; j < nodes_plot; ++j)
 				{
-					if (edges[j][k] > 0.0){
-						MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX[j])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[j])) + 4.0), NULL);
-						LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX[k])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[k])) + 4.0));
-						
-						char text[7];
-						sprintf(text, "%6.2lf", edges[j][k]);
-						int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX[k]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX[j]))) / 2;
-						int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY[k])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY[j])) + 4.0)))/2;
+					MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[j-1]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0), NULL);
+					LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
+					
+					char text[7];
+					sprintf(text, "%6.2lf", edges_plot[printOrder_plot[j-1]*nodes_plot + (printOrder_plot[j])]);
+					int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j-1]]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[j]]))) / 2;
+					int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0)))/2;
+					RECT textRect;
+						textRect.left = x - NODE_DIAMETER;
+						textRect.top = y - NODE_DIAMETER;
+						textRect.right = x + NODE_DIAMETER;
+						textRect.bottom = y + NODE_DIAMETER;
+					DrawText(hdc, text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+					
+					// Paint the last line back to 0
+					if (j == nodes_plot - 1)
+					{
+						MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[0]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[0]])) + 4.0), NULL);
+						LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
+					
+						sprintf(text, "%6.2lf", edges_plot[printOrder_plot[0]*nodes_plot + (printOrder_plot[j])]);
+						int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[0]]))) / 2;
+						int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[0]])) + 4.0)))/2;
 						RECT textRect;
 							textRect.left = x - NODE_DIAMETER;
 							textRect.top = y - NODE_DIAMETER;
 							textRect.right = x + NODE_DIAMETER;
 							textRect.bottom = y + NODE_DIAMETER;
-				
+						
 						DrawText(hdc, text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+					}
+				}
+				
+			}
+			else
+			{
+				SetDCPenColor(hdc, RGB(255,0,0));
+				for (int j = 0; j < nodes_plot; ++j)
+				{
+					for (int k = j + 1; k < nodes_plot; ++k)
+					{
+						if (edges_plot[j*nodes_plot + k] > 0.0){
+							MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[j])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[j])) + 4.0), NULL);
+							LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX_plot[k])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[k])) + 4.0));
+							
+							char text[7];
+							sprintf(text, "%6.2lf", edges_plot[j*nodes_plot + k]);
+							int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[k]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[j]))) / 2;
+							int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[k])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[j])) + 4.0)))/2;
+							RECT textRect;
+								textRect.left = x - NODE_DIAMETER;
+								textRect.top = y - NODE_DIAMETER;
+								textRect.right = x + NODE_DIAMETER;
+								textRect.bottom = y + NODE_DIAMETER;
+					
+							DrawText(hdc, text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
+						}
 					}
 				}
 			}
 			
-			// Reset transparency mode to opaque and color to black
+			// Reset transparency mode to opaque
 			SetBkMode(hdc, 0);
 			SelectObject(hdc, GetStockObject(DC_PEN));
-			SetDCPenColor(hdc, RGB(0,0,0));
-			for (int i = 0; i < nodes; ++i)
+
+			for (int i = 0; i < nodes_plot; ++i)
 			{
-				//Left top right bottom
-				Ellipse(hdc, 
-					NODE_DIAMETER/2 + lround((6.0 * coordX[i] - NODE_DIAMETER/2)),
-					PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[i]) + 4.0 - NODE_DIAMETER/2)),
-					NODE_DIAMETER/2 + lround((6.0 * coordX[i] + NODE_DIAMETER/2)),
-					PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[i])) + NODE_DIAMETER/2 + 4.0));
+				// Set color to black
+				SetDCPenColor(hdc, RGB(0,0,0));
+				SetTextColor(hdc, RGB(0,0,0));
+				
+				if (i == 0)
+				{
+					SetDCBrushColor(hdc, RGB(0,0,0));
+					SelectObject(hdc, GetStockObject(DC_BRUSH));
+					//Left top right bottom
+					Ellipse(hdc, 
+						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2)),
+						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2)),
+						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2)),
+						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0));
+						
+					SetDCBrushColor(hdc, RGB(255,255,255));
+					SetTextColor(hdc, RGB(255,255,255));
+				}
+				else
+				{
+					Ellipse(hdc, 
+						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2)),
+						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2)),
+						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2)),
+						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0));
+						
+					SetTextColor(hdc, RGB(0,0,0));
+				}
+				
+				SetDCPenColor(hdc, RGB(255,255,255));
+				SelectObject(hdc, GetStockObject(DC_PEN));
 				
 				char text[4] = {0, 0, 0, 0};
 				sprintf(text, "%d", i);
 				
 				RECT textRect;
-				textRect.left = NODE_DIAMETER/2 + lround((6.0 * coordX[i] - NODE_DIAMETER/2));
-				textRect.top = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[i]) + 4.0 - NODE_DIAMETER/2));
-				textRect.right = NODE_DIAMETER/2 + lround((6.0 * coordX[i] + NODE_DIAMETER/2));
-				textRect.bottom = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY[i])) + NODE_DIAMETER/2 + 4.0);
+				textRect.left = NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2));
+				textRect.top = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2));
+				textRect.right = NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2));
+				textRect.bottom = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0);
 				
 				DrawText(hdc, text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
 			}
 			
+			// Finish painting environment
    			EndPaint(hWnd, &ps);
             break;
-            
         case WM_DESTROY:
             PostQuitMessage(0);
         	break;
@@ -111,15 +180,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-int ShowPlot(int N, int *arrayX, int *arrayY, double **matrix)
+int ShowWin()
 {
-	// CHECK THESE?!?
-	nodes = N;
-	coordX = arrayX;
-	coordY = arrayY;
-	matrix = (*matrix);
-	
-	
 	HINSTANCE hInstance;
     WNDCLASSEX wc;
     HWND hwnd;
@@ -127,18 +189,26 @@ int ShowPlot(int N, int *arrayX, int *arrayY, double **matrix)
 
     //Step 1: Registering the Window Class
     wc.cbSize        = sizeof(WNDCLASSEX);
-    wc.style         = 0;
     wc.lpfnWndProc   = WndProc;
+    wc.style         = 0;
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
     wc.hInstance     = hInstance;
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.lpszMenuName  = NULL;
-    wc.lpszClassName = "plotWindowClass";
     
-    wc.hIcon         = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
-    wc.hIconSm       = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
+    if (algorithm_plot == 0)
+    {
+    	wc.lpszClassName = "IntitialGraphClass";
+	}
+	else
+	{
+		wc.lpszClassName = "ResultGraphClass";
+	}
+    
+    wc.hIcon = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
+    wc.hIconSm = LoadIcon(GetModuleHandle(0), MAKEINTRESOURCE(ICON256));
 	
 	
     if(!RegisterClassEx(&wc))
@@ -158,7 +228,7 @@ int ShowPlot(int N, int *arrayX, int *arrayY, double **matrix)
     // Step 2: Creating the Window
     hwnd = CreateWindowEx(
         WS_EX_CLIENTEDGE,
-        "plotWindowClass",
+        wc.lpszClassName,
         "Graph Plot",
         WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT,
@@ -182,4 +252,26 @@ int ShowPlot(int N, int *arrayX, int *arrayY, double **matrix)
         DispatchMessage(&Msg);
     }
     return Msg.wParam;
+}
+
+int ShowPlot(int N, double **bestOrder, int algType)
+{
+	// Pass the parameters into the globals for updated information 
+	nodes_plot = N;
+	printOrder_plot = (*bestOrder);
+	algorithm_plot = algType;
+	
+	ShowWin();
+}
+
+int CreatePlot(int N, double *arrayX, double *arrayY, double **matrix, int algType)
+{
+	// Pass the parameters into the global variables
+	nodes_plot = N;
+	coordX_plot = arrayX;
+	coordY_plot = arrayY;
+	edges_plot = (*matrix);
+	algorithm_plot = algType;
+	
+	ShowWin();
 }

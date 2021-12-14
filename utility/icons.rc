@@ -1,6 +1,6 @@
 #include "resource.h"
 
-ICON16 ICON "resource/graph16.ico"
-ICON32 ICON "resource/graph32.ico"
-ICON48 ICON "resource/graph48.ico"
 ICON256 ICON "resource/graph256.ico"
+ICON48 ICON "resource/graph48.ico"
+ICON32 ICON "resource/graph32.ico"
+ICON16 ICON "resource/graph16.ico"
