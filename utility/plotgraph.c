@@ -6,7 +6,7 @@
 #define NODE_DIAMETER 30
 #define PLOT_SIZE (PLANE_SIZE+NODE_DIAMETER+4)	// Add 4 for some reason..
 
-#define SCALE 0.5	// Scale the graph a certain amount
+#define SCALE 1.0	// Scale the graph a certain amount
 // END PARAMETERS
 
 
@@ -66,7 +66,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (type_plot == 1)
 			{
 				// No offset
-				offset = 0;
+				offset = 2.0;
 			}
 			// Else if the graph is Circular
 			else if (type_plot == 2)

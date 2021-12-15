@@ -8,16 +8,16 @@
 // RADIUS:	   0.x-50 (or greater if not displaying) Radius of circular graph. Circular graphs best displayed with 50 or less.
 // ALG:		   0-3 for the algorithm to use (BruteForce, Greedy, Dynamic Programming, Ant Colony)
 // ALG_TYPE:   1 or 2 (Exact or Hueristic) DO NOT CHANGE. Used for printing.
-#define GRAPH_TYPE 2
+#define GRAPH_TYPE 1
 #define PLOT_GRAPH 1
 
 const char *FILEPATH = "input/example.txt";
-int NODES = 6;
+int NODES = 15;
 
 #define SEED 25
 #define MAX 100.0
 #define RADIUS 100.0
-#define ALG 1
+#define ALG 3
 
 #if ALG == 0 || ALG == 2
 	#define ALG_TYPE 1
@@ -39,6 +39,7 @@ int NODES = 6;
 #include "../utility/plotgraph.h"
 #include "../algorithm/bruteforce.h"
 #include "../algorithm/greedy.h"
+#include "../algorithm/antcolony.h"
 
 int main()
 {
@@ -115,6 +116,16 @@ int main()
 	}
 	else if (ALG == 3)
 	{
+		int *currentOrder = malloc((NODES+1) * sizeof(int));
+		for (int i = 0; i < NODES; ++i)
+			currentOrder[i] = i;
+		currentOrder[NODES] = 0;
+		
+		*bestTotal = DBL_MAX; // Max value of an double
+		
+		antColony(&matrix, NODES, &bestOrder, &currentOrder, bestTotal);
+		
+		free(currentOrder);
 	}
 	else
 	{
