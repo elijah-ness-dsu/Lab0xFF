@@ -12,11 +12,11 @@
 #define PLOT_GRAPH 1
 
 const char *FILEPATH = "input/example.txt";
-int NODES = 10;
+int NODES = 6;
 
-#define SEED 18
+#define SEED 25
 #define MAX 100.0
-#define RADIUS 50.0
+#define RADIUS 100.0
 #define ALG 1
 
 #if ALG == 0 || ALG == 2
