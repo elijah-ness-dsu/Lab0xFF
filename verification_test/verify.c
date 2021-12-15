@@ -12,9 +12,9 @@
 #define PLOT_GRAPH 1
 
 const char *FILEPATH = "input/example.txt";
-int NODES = 6;
+int NODES = 10;
 
-#define SEED 25225
+#define SEED 18
 #define MAX 100.0
 #define RADIUS 50.0
 #define ALG 1
@@ -70,12 +70,12 @@ int main()
 		printf("Node Coordinates: \n");
 		for (int i = 0; i < NODES; ++i)
 		{
-			printf("(%.2lf, %.2lf)\n", xs[i], ys[i]);
+			printf("(%.3lf, %.3lf)\n", xs[i], ys[i]);
 		}
 	printf("\n");
 	}
 	
-	
+	// Print the edge cost matrix
 	printf("Edge Cost Matrix: \n");
 	for(int i = 0; i < NODES + 1; ++i)
 	{
@@ -84,7 +84,7 @@ int main()
 			if (i == NODES)
 				printf("-------");
 			else
-				printf("%5.3f ", matrix[i*NODES + j]);
+				printf("%8.3f ", matrix[i*NODES + j]);
 		}
 		printf("\n");
 	}
@@ -121,12 +121,15 @@ int main()
 		printf("Error: ALG macro must be in range 0-3.\n");
 	}
 	
+	// Plot the graph
 	if (PLOT_GRAPH == 1)
 	{
-		MakeGraphPlot(NODES, &matrix, xs, ys, 0, 0);
+		MakeGraphPlot(NODES, &matrix, xs, ys, GRAPH_TYPE, 0);
 		ShowPathPlot(NODES, &bestOrder, ALG_TYPE);	
 	}
 	
+	
+	// Print solution path
 	printf("\n");
 	printf("Solution node order: ");
 	for (int i = 0; i <= NODES; ++i)

@@ -23,14 +23,14 @@
 #include "plotgraph.h"
 
 // Declare globals
-int nodes_plot;
-double *coordX_plot;
-double *coordY_plot;
-double *edges_plot;
+int nodes_plot;			// Number of nodes
+double *coordX_plot;	// Array of node x coordinates
+double *coordY_plot;	// Array of node y coordinates
+double *edges_plot;		// Array of edges
 int algorithm_plot;		// Used to color lines. 0-2 Initial (not solution), Exact, Hueristic
-int *printOrder_plot;
+int *printOrder_plot;	// Array of the print order for the route
 
-int type_plot;
+int type_plot;			// Standard Euclidean or Circular
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -49,28 +49,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         	// Initialize painting
         	hdc = BeginPaint(hWnd, &ps);
 			
-			// Set transparency to transparent
+			// Set opacity to transparent
 			SetBkMode(hdc, 1);
+			// Select DC_PEN
 			SelectObject(hdc, GetStockObject(DC_PEN));
 			
+			// Create a variable to hold the amount of offset
 			int offset;
 			// If the graph is standard
-			if (type_plot == 0)
+			if (type_plot == 1)
 			{
+				// No offset
 				offset = 0;
 			}
-			else if (type_plot == 1)
+			// Else if the graph is Circular
+			else if (type_plot == 2)
 			{
+				// Add offset to center the circle
 				offset = (PLANE_SIZE)/2;
 			}
+			// Else error
 			else
 			{
-				printf("Error: Parameter plotType must be in range 0-1.\n");
+				printf("Error: Parameter plotType must be in range 1-2.\n");
 				exit(1);
 			}
 			
+			// If this is a route plot
 			if (algorithm_plot > 0)
 			{
+				// Select color
+				// Green for exact
+				// Blue for huristic.
 				if (algorithm_plot == 2)
 					SetDCPenColor(hdc, RGB(0,0,255));
 				else
@@ -80,7 +90,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				for (int j = 1; j < nodes_plot; ++j)
 				{
 					MoveToEx(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j-1]])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j-1]])) + 4.0), NULL);
-					LineTo(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
+					LineTo(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
 					
 					char text[7];
 					sprintf(text, "%6.2lf", edges_plot[printOrder_plot[j-1]*nodes_plot + (printOrder_plot[j])]);
@@ -96,12 +106,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					// Paint the last line back to 0
 					if (j == nodes_plot - 1)
 					{
-						MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[0]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[0]])) + 4.0), NULL);
-						LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
+						MoveToEx(hdc, offset + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[0]])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[0]])) + 4.0), NULL);
+						LineTo(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0));
 					
 						sprintf(text, "%6.2lf", edges_plot[printOrder_plot[0]*nodes_plot + (printOrder_plot[j])]);
-						int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[0]]))) / 2;
-						int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[0]])) + 4.0)))/2;
+						int x = offset + ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[printOrder_plot[j]]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[printOrder_plot[0]]))) / 2;
+						int y = PLOT_SIZE - (offset + ((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[j]])) + 4.0) + (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[printOrder_plot[0]])) + 4.0)))/2;
 						RECT textRect;
 							textRect.left = x - NODE_DIAMETER;
 							textRect.top = y - NODE_DIAMETER;
@@ -113,6 +123,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				
 			}
+			// Else this must be a full graph plot
 			else
 			{
 				SetDCPenColor(hdc, RGB(255,0,0));
@@ -121,13 +132,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					for (int k = j + 1; k < nodes_plot; ++k)
 					{
 						if (edges_plot[j*nodes_plot + k] > 0.0){
-							MoveToEx(hdc, lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[j])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[j])) + 4.0), NULL);
-							LineTo(hdc, NODE_DIAMETER/2 + lround((6.0 * coordX_plot[k])), PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[k])) + 4.0));
+							MoveToEx(hdc, offset + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[j])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[j])) + 4.0), NULL);
+							LineTo(hdc, offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[k])), PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[k])) + 4.0));
 							
 							char text[7];
 							sprintf(text, "%6.2lf", edges_plot[j*nodes_plot + k]);
-							int x = ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[k]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[j]))) / 2;
-							int y = PLOT_SIZE - (((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[k])) + 4.0) + (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[j])) + 4.0)))/2;
+							int x = offset + ((NODE_DIAMETER/2 + lround((6.0 * coordX_plot[k]))) + lround(NODE_DIAMETER/2 +(6.0 * coordX_plot[j]))) / 2;
+							int y = PLOT_SIZE - (offset + ((NODE_DIAMETER/2 + lround((6.0 * coordY_plot[k])) + 4.0) + (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[j])) + 4.0)))/2;
 							RECT textRect;
 								textRect.left = x - NODE_DIAMETER;
 								textRect.top = y - NODE_DIAMETER;
@@ -156,10 +167,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 					SelectObject(hdc, GetStockObject(DC_BRUSH));
 					//Left top right bottom
 					Ellipse(hdc, 
-						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2)),
-						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2)),
-						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2)),
-						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0));
+						offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2)),
+						PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2)),
+						offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2)),
+						PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0));
 						
 					SetDCBrushColor(hdc, RGB(255,255,255));
 					SetTextColor(hdc, RGB(255,255,255));
@@ -167,10 +178,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				else
 				{
 					Ellipse(hdc, 
-						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2)),
-						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2)),
-						NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2)),
-						PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0));
+						offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2)),
+						PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2)),
+						offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2)),
+						PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0));
 						
 					SetTextColor(hdc, RGB(0,0,0));
 				}
@@ -182,10 +193,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				sprintf(text, "%d", i);
 				
 				RECT textRect;
-				textRect.left = NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2));
-				textRect.top = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2));
-				textRect.right = NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2));
-				textRect.bottom = PLOT_SIZE - (NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0);
+				textRect.left = offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] - NODE_DIAMETER/2));
+				textRect.top = PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i]) + 4.0 - NODE_DIAMETER/2));
+				textRect.right = offset + NODE_DIAMETER/2 + lround((6.0 * coordX_plot[i] + NODE_DIAMETER/2));
+				textRect.bottom = PLOT_SIZE - (offset + NODE_DIAMETER/2 + lround((6.0 * coordY_plot[i])) + NODE_DIAMETER/2 + 4.0);
 				
 				DrawText(hdc, text, -1, &textRect, DT_CENTER|DT_VCENTER|DT_SINGLELINE);
 			}
