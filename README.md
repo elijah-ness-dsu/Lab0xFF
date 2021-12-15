@@ -19,4 +19,30 @@ Verify the algorithm's results for small graph sizes. Results can be visually di
 - [time.c](time_test/time.c)  
 Test and print the time taken by an algorithm with increasing graph sizes.
 - [qualify.c](quality_test/qualify.c)  
-Test and print quality of hueristic algorithm results.
+Test and print quality of heuristic algorithm results.
+
+## Example Graph Displays
+
+Original Euclidean 8 Node:
+
+![Full Graph](image/1.png)
+
+Brute Force Path:
+
+![Exact Route](image/2.png)
+
+Greedy Path:
+
+![Heuristic Route](image/3.png)
+
+Original Circular 8 Node:
+
+![Exact Route](images/4.png)
+
+Brute Force Path:
+
+![Exact Route](image/5.png)
+
+Greedy Path:
+
+![Heuristic Route](image/6.png)
