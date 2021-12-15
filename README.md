@@ -37,7 +37,7 @@ Greedy Path:
 
 Original Circular 8 Node:
 
-![Exact Route](images/4.png)
+![Exact Route](image/4.png)
 
 Brute Force Path:
 
