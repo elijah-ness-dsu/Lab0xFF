@@ -6,7 +6,7 @@
 #define NODE_DIAMETER 30
 #define PLOT_SIZE (PLANE_SIZE+NODE_DIAMETER+4)	// Add 4 for some reason..
 
-#define SCALE 1.0	// Scale the graph a certain amount
+#define SCALE 0.5	// Scale the graph a certain amount
 // END PARAMETERS
 
 

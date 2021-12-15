@@ -8,16 +8,16 @@
 // RADIUS:	   0.x-50 (or greater if not displaying) Radius of circular graph. Circular graphs best displayed with 50 or less.
 // ALG:		   0-3 for the algorithm to use (BruteForce, Greedy, Dynamic Programming, Ant Colony)
 // ALG_TYPE:   1 or 2 (Exact or Hueristic) DO NOT CHANGE. Used for printing.
-#define GRAPH_TYPE 1
+#define GRAPH_TYPE 2
 #define PLOT_GRAPH 1
 
 const char *FILEPATH = "input/example.txt";
-int NODES = 15;
+int NODES = 8;
 
-#define SEED 25
+#define SEED 10025
 #define MAX 100.0
 #define RADIUS 100.0
-#define ALG 3
+#define ALG 1
 
 #if ALG == 0 || ALG == 2
 	#define ALG_TYPE 1

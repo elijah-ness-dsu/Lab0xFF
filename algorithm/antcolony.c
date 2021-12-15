@@ -1,5 +1,10 @@
 // USER PARAMETERS
-int M = 10; // Number of ants
+// M:						Number of ants
+// pFactor:					Multiplies amount of pheromone that an ant can add
+// decayFactor: 			Diminishes pheromone by this factor over time
+// maxUnchangedTimeSteps:   The algorithm will cease after running this many times without better results
+// seed:					The seed used for path probability
+int M = 10;
 double pFactor = 1;
 double decayFactor = 0.9;
 int maxUnchangedTimeSteps = 10;
