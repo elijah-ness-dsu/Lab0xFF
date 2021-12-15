@@ -11,3 +11,5 @@ Professor Scott Graham (Overprof)
 This project was created with Embarcadero Dev-C++.
 
 Language: C
+
+(Make sure to specify the linker command `-lgdi32` to include GDI).
