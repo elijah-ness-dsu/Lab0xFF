@@ -12,7 +12,7 @@ This project was created with Embarcadero Dev-C++.
 
 Language: C (Make sure to specify the linker command `-lgdi32` to include the GDI library).
 
-To run the program, Only build **one** of the following client files:
+To run the program, only choose **one** of the following client files depending on the actions you wish to complete. Disable the others from being compiled.
 
 - [verify.c](verification_test/verify.c)
 - [timing.c](time_test/timing.c)
