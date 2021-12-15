@@ -18,5 +18,5 @@ To run the program, only choose **one** of the following client files depending 
 Verify the algorithm's results for small graph sizes. Results can be visually displayed.
 - [time.c](time_test/time.c)  
 Test and print the time taken by an algorithm with increasing graph sizes.
-- [quality.c](quality_test/quality.c)  
+- [qualify.c](quality_test/qualify.c)  
 Test and print quality of hueristic algorithm results.
