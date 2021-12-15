@@ -13,3 +13,9 @@ This project was created with Embarcadero Dev-C++.
 Language: C
 
 (Make sure to specify the linker command `-lgdi32` to include GDI).
+
+To run the program, Only build **one** of the following client files:
+
+- [verify.c](verification_test/verify.c)
+- [timing.c](time_test/timing.c)
+- [quality.c](quality_test/quality.c)
