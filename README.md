@@ -5,7 +5,7 @@ This is the final lab for CSC-482 Algorithms and Optimizations
 
 Dakota State University
 
-Professor Scott Graham (Overprof)
+Professor Scott Graham (OverProf)
 
 ## About
 This project was created with Embarcadero Dev-C++.
