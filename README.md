@@ -14,6 +14,9 @@ Language: C (Make sure to specify the linker command `-lgdi32` to include the GD
 
 To run the program, only choose **one** of the following client files depending on the actions you wish to complete. Disable the others from being compiled.
 
-- [verify.c](verification_test/verify.c)
-- [timing.c](time_test/timing.c)
-- [quality.c](quality_test/quality.c)
+- [verify.c](verification_test/verify.c)  
+Verify the algorithm's results for small graph sizes. Results can be visually displayed.
+- [timing.c](time_test/timing.c)  
+Test and print the time taken by an algorithm with increasing graph sizes.
+- [quality.c](quality_test/quality.c)  
+Test and print quality of hueristic algorithm results.
