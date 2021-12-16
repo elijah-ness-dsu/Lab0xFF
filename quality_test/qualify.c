@@ -1,25 +1,26 @@
 //USER PARAMETERS
 // N_MIN:			The starting nodes in the graph (greater than 4)
 // ROWS:			Maximum number of rows to be printed out
-// trialsTimeMax:	Maxmimum time in seconds that a trial can take
-// trialsCountMax:	Maximum number of trials that can occur on a given size of N
+// trialsNum:		Number of trials to conduct for each given size of N for good average
 
 // GRAPH_TYPE: 0-2 for Random, Euclidean, Circular Euclidean
+// SEED:	   Random generator seed
 // MAX:        0.x-100 (or greater if not displaying) Maximum random number to generate. Euclidean graphs displayed best with 100 or less.
 // RADIUS:	   0.x-50 (or greater if not displaying) Radius of circular graph. Circular graphs best displayed with 50 or less.
-// ALG:		   0-3 for the algorithm to use (BruteForce, Greedy, Dynamic Programming, Ant Colony)
+// ALG:		   0-1 for the algorithm to use (Greedy, Ant Colony)
 #define N_MIN 4
 #define ROWS  100
 
-#include <time.h>
-const clock_t trialsTimeMax = 0.250 * CLOCKS_PER_SEC;
-const int trialsCountMax = 1000000;
+const int trialsNum = 20;
 
-#define GRAPH_TYPE 0
+#define GRAPH_TYPE 1
+#define SEED 123
 #define MAX 100.0
 #define RADIUS 100.0
 #define ALG 1
 //END USER PARAMETERS
+
+
 
 // Include standard libraries
 #include <stdio.h>
@@ -27,6 +28,7 @@ const int trialsCountMax = 1000000;
 #include <math.h>
 #include <string.h>
 #include <float.h>
+#include <time.h>
 
 // Local dependencies
 #include "../utility/makegraph.h"
@@ -52,15 +54,9 @@ int main ()
 	// Seed the RNG with the current time
 	srand(time(NULL));
 	
-	// Declare all arrays to hold data
-	unsigned long long listSizeArray[ROWS];
-	double avgExperimentTimeArray[ROWS];
-	double experimentDRatioArray[ROWS];
-	double theoryDRatioArray[ROWS];
 	
 	// Print Table headers
-	printf("           Graph Size (N)      Avg Experiment Time        Experiment DRatio            Theory DRatio\n");
-	printf("           Graph Size (N)      Avg Experiment Time        Experiment DRatio            Theory DRatio\n");
+	printf("           Graph Size (N)       Avg Solution Cost       Exact Solution Cost                  Avg SQR\n");
 	
 	// Create a for loop to double the input size up until nMax is reached
 	unsigned long long nReal = 0;
@@ -75,25 +71,23 @@ int main ()
 		int *bestOrder = calloc((nReal+1), sizeof(int));
 		double *bestTotal = calloc(1, sizeof(double));
 		
+		// Reset trials count for next while loop
 		int trialsCount = 0;
-		clock_t trialsTime = 0.0;
-	
 		
-		// Get start timestamp 
-		clock_t startTime = clock();
+		double heuristicCost = 0.0;
 		
 		// Run all trials
-		while (trialsCount < trialsCountMax && trialsTime <= trialsTimeMax) {
+		while (trialsCount < trialsNum) {
 			
 			// Setup
 			#if GRAPH_TYPE == 0
-				generateRandomCostMatrix(nReal, &matrix, MAX, time(0));
+				generateRandomCostMatrix(nReal, &matrix, MAX, SEED);
 			#elif GRAPH_TYPE == 1
-				generateRandomEuclideanCostMatrix(nReal, &matrix, &xs, &ys, MAX, time(0));
+				generateRandomEuclideanCostMatrix(nReal, &matrix, &xs, &ys, MAX, SEED);
 				free(xs);
 				free(ys);
 			#elif GRAPH_TYPE == 2
-				generateRandomCircularGraphCostMatrix(nReal, &matrix, &xs, &ys, RADIUS, time(0));
+				generateRandomCircularGraphCostMatrix(nReal, &matrix, &xs, &ys, RADIUS, SEED);
 				free(xs);
 				free(ys);
 			#else
@@ -103,22 +97,8 @@ int main ()
 			
 			// Run
 			#if ALG == 0
-				int *currentOrder = malloc((nReal+1) * sizeof(int));
-				for (int i = 0; i < nReal; ++i)
-					currentOrder[i] = i;
-				currentOrder[nReal] = 0;
-		
-				*bestTotal = DBL_MAX; // Max value of an double
-		
-				bruteForce(&matrix, 0, nReal, &bestOrder, &currentOrder, bestTotal);
-		
-				free(currentOrder);
-			#elif ALG == 1
 				greedy(&matrix, nReal, &bestOrder, bestTotal);
-			#elif ALG == 2
-				printf("Error: Invalid ALG in time.c. Dynamic Programming not implemented");
-				exit(1);
-			#elif ALG == 3
+			#elif ALG == 1
 				int *currentOrder = malloc((nReal+1) * sizeof(int));
 				for (int i = 0; i < nReal; ++i)
 					currentOrder[i] = i;
@@ -130,41 +110,38 @@ int main ()
 		
 				free(currentOrder);
 			#else
-				printf("Error: Invalid ALG in time.c. Must be in range 0-3.");
+				printf("Error: Invalid ALG in qualify.c. Must be in range 0-1.");
 				exit(1);
 			#endif
 			
-			// Get total time since start of loop
-			clock_t splitTime = clock();
-			trialsTime = (splitTime - startTime);
+			heuristicCost += *bestTotal;
+			
+			free(bestOrder);
+			free(bestTotal);
+			free(matrix);
+			
+			bestOrder = calloc((nReal+1), sizeof(int));
+			bestTotal = calloc(1, sizeof(double));
 			
 			++trialsCount;
 		}
-		double trials1 = trialsTime;
 		
-		// Use as counter maxmimum for the overhead loop
-		int numTrialsPerformed = trialsCount;
-		
-		// Microseconds
-		double totalTimeRaw =  (trialsTime * 1000000.0) / CLOCKS_PER_SEC;
-		double avgTimePerTrial = (totalTimeRaw)/ (double)numTrialsPerformed;
-		
+		// Reset trials count for next while loop
 		trialsCount = 0;
-		trialsTime = 0;
-		startTime = clock();
 		
+		double exactCost;
 		// Run dummy trials
-		while (trialsCount < numTrialsPerformed && trialsTime < trialsTimeMax) {
+		//while (trialsCount < trialsTime) {
 			
 			// Setup
 			#if GRAPH_TYPE == 0
-				generateRandomCostMatrix(nReal, &matrix, MAX, time(0));
+				generateRandomCostMatrix(nReal, &matrix, MAX, SEED);
 			#elif GRAPH_TYPE == 1
-				generateRandomEuclideanCostMatrix(nReal, &matrix, &xs, &ys, MAX, time(0));
+				generateRandomEuclideanCostMatrix(nReal, &matrix, &xs, &ys, MAX, SEED);
 				free(xs);
 				free(ys);
 			#elif GRAPH_TYPE == 2
-				generateRandomCircularGraphCostMatrix(nReal, &matrix, &xs, &ys, RADIUS, time(0));
+				generateRandomCircularGraphCostMatrix(nReal, &matrix, &xs, &ys, RADIUS, SEED);
 				free(xs);
 				free(ys);
 			#else
@@ -173,104 +150,34 @@ int main ()
 			#endif
 			
 			// Run
-			#if ALG == 0
-				int *currentOrder = malloc((nReal+1) * sizeof(int));
-				for (int i = 0; i < nReal; ++i)
-					currentOrder[i] = i;
-				currentOrder[nReal] = 0;
+			int *currentOrder = malloc((nReal+1) * sizeof(int));
+			for (int i = 0; i < nReal; ++i)
+				currentOrder[i] = i;
+			currentOrder[nReal] = 0;
 		
-				*bestTotal = DBL_MAX; // Max value of an double
+			*bestTotal = DBL_MAX; // Max value of an double
 		
-				bruteForceDummy(&matrix, 0, nReal, &bestOrder, &currentOrder, bestTotal);
+			bruteForce(&matrix, 0, nReal, &bestOrder, &currentOrder, bestTotal);
+			
+			exactCost = *bestTotal;
+			
+			free(currentOrder);
+			free(bestOrder);
+			free(bestTotal);
+			free(matrix);
+			
+		//	++trialsCount;
+		//}
 		
-				free(currentOrder);
-			#elif ALG == 1
-				greedyDummy(&matrix, nReal, &bestOrder, bestTotal);
-			#elif ALG == 2
-				printf("Error: Invalid ALG in time.c. Dynamic Programming not implemented");
-				exit(1);
-			#elif ALG == 3
-				int *currentOrder = malloc((nReal+1) * sizeof(int));
-				for (int i = 0; i < nReal; ++i)
-					currentOrder[i] = i;
-				currentOrder[nReal] = 0;
-		
-				*bestTotal = DBL_MAX; // Max value of an double
-		
-				antColonyDummy(&matrix, nReal, &bestOrder, &currentOrder, bestTotal);
-		
-				free(currentOrder);
-			#else
-				printf("Error: Invalid ALG in time.c. Must be in range 0-3.");
-				exit(1);
-			#endif
+		// Calculate average
+		double avgHeuristicCost = heuristicCost / trialsNum;
 
-			
-			// Get total time since start of loop
-			clock_t splitTime = clock();
-			trialsTime = (splitTime - startTime);
-			
-			++trialsCount;
-		}
+		// Calculate SQR
+		double SQR = avgHeuristicCost / exactCost;
 		
-		double totalTimeOverhead = (trialsTime * 1000000.0) / CLOCKS_PER_SEC;	// Microseconds
-		
-		double avgOverheadTimePerTrial = (totalTimeOverhead) / (double)numTrialsPerformed;
-		double estimatedTimePerTrial = (avgTimePerTrial - avgOverheadTimePerTrial);
-		
-		
-		double totalTime = totalTimeRaw / 1000.0;		// JUST the total time, we don't need the overhead time here because the original loop already included overhead!
-		double algTime = (totalTimeRaw - totalTimeOverhead) / 1000.0;
-		
-		// Fill in the table data
-		listSizeArray[index] = nReal;
-		avgExperimentTimeArray[index] = estimatedTimePerTrial;
-		
-		if (index > 0 && nReal % 2 == 0 && index > 2) {
-			
-			experimentDRatioArray[index] = avgExperimentTimeArray[index] / avgExperimentTimeArray[(nReal / 2) - 1 - 3];
-			
-			// Call getTheoryDoublingRatio function
-			theoryDRatioArray[index] = getTheoryDoublingRatio(listSizeArray[index], listSizeArray[(nReal / 2) - 1 - 3]);
-		}
-		
-		if (index == 0 || nReal % 2 != 0 || nReal == 2)
-		{
-			printf("%25llu%23.2lfus%22cNAN%22cNAN\n", listSizeArray[index], avgExperimentTimeArray[index], ' ', ' ');
-		}
-		else {
-			printf("%25llu%23.2lfus%25lf%25.4lf\n", listSizeArray[index], avgExperimentTimeArray[index], experimentDRatioArray[index], theoryDRatioArray[index]);
-		}
+		printf("%25llu%25lf%25lf%25lf\n", nReal, avgHeuristicCost, exactCost, SQR);
 
-		free(bestOrder);
-		free(bestTotal);
-		free(matrix);
-
-		++index;
 	}
 	
 	return 0;
-}
-
-double getTheoryDoublingRatio(unsigned long long nReal, unsigned long long nPrevious)
-{
-	#if ALG == 0
-		return (double)factorial(nReal) / (double)factorial(nPrevious);
-	#elif ALG == 1
-		return (double)(nReal * nReal) / (double)(nPrevious * nPrevious);
-	#elif ALG == 2
-		return pow(2.0, nReal) / pow(2.0, nReal);
-	#elif ALG == 3
-		return 0.0;
-	#else
-		printf("Error: Invalid ALG in time.c. Must be in range 0-3.");
-		exit(1);
-	#endif
-}
-
-unsigned long long factorial(unsigned long long N)
-{
-	if (N == 0)
-        return 1;
-    return N * factorial(N - 1);
 }

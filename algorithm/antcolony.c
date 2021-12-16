@@ -8,10 +8,10 @@
 #define VERBOSE 0
 
 // 10, 1, .9, 10
-int M = 20;
-double pFactor = 10;
-double decayFactor = 0.99;
-int maxUnchangedTimeSteps = 10;
+int M = 50;
+double pFactor = 1.2;
+double decayFactor = 0.8;
+int maxUnchangedTimeSteps = 20;
 int seed = 239;
 //END USER PARAMETERS
 
