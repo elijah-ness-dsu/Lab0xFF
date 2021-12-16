@@ -34,3 +34,8 @@ void bruteForce(double **matrix, int start, int N, int **bestOrder, int **curren
     	}
 	}
 }
+
+void bruteForceDummy(double **matrix, int start, int N, int **bestOrder, int **currentOrder, double *bestTotal)
+{
+	
+}

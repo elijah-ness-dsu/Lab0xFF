@@ -12,12 +12,12 @@
 #define PLOT_GRAPH 1
 
 const char *FILEPATH = "input/example.txt";
-int NODES = 8;
+int NODES = 12;
 
-#define SEED 10025
+#define SEED 123
 #define MAX 100.0
 #define RADIUS 100.0
-#define ALG 1
+#define ALG 3
 
 #if ALG == 0 || ALG == 2
 	#define ALG_TYPE 1

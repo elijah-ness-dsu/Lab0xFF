@@ -1,15 +1,19 @@
 // USER PARAMETERS
+// VERBOSE:					If the algorithm should print progress
 // M:						Number of ants
 // pFactor:					Multiplies amount of pheromone that an ant can add
 // decayFactor: 			Diminishes pheromone by this factor over time
 // maxUnchangedTimeSteps:   The algorithm will cease after running this many times without better results
 // seed:					The seed used for path probability
-int M = 10;
-double pFactor = 1;
-double decayFactor = 0.9;
+#define VERBOSE 0
+
+// 10, 1, .9, 10
+int M = 20;
+double pFactor = 10;
+double decayFactor = 0.99;
 int maxUnchangedTimeSteps = 10;
 int seed = 239;
-//
+//END USER PARAMETERS
 
 // Include Standard Libraries
 #include <stdio.h>
@@ -76,14 +80,21 @@ void antColony(double **matrix, int N, int **bestOrder, int **currentOrder, doub
 							break;
 					}
 				}
-				printf("Chose to go from node %d to node %d\n", k, h);
+				
+				#if VERBOSE == 1
+					printf("Chose to go from node %d to node %d\n", k, h);
+				#endif
+				
 				(*currentOrder)[step] = h;
 				visited[h] = 1;
 				pathCost += (*matrix)[k*N + h];
 			}
 			
 			pathCost += (*matrix)[h*N + 0];
-			printf("Final cost of route: %f\n", pathCost);
+			
+			#if VERBOSE == 1
+				printf("Final cost of route: %f\n", pathCost);
+			#endif
 			
 			if(pathCost < *bestCost)
 			{
@@ -91,7 +102,10 @@ void antColony(double **matrix, int N, int **bestOrder, int **currentOrder, doub
 				memcpy((*bestOrder), (*currentOrder), sizeof(int) * (N+1));
 				
 				unchangedTimeSteps = 0;
-				printf("New Best: %d %d %d %d %d was a cost of %f\n", (*bestOrder)[0], (*bestOrder)[1], (*bestOrder)[2], (*bestOrder)[3], (*bestOrder)[4], *bestCost);
+				
+				#if VERBOSE == 1
+					printf("New Best: %d %d %d %d %d was a cost of %f\n", (*bestOrder)[0], (*bestOrder)[1], (*bestOrder)[2], (*bestOrder)[3], (*bestOrder)[4], *bestCost);
+				#endif
 			}
 			
 			for(int j = 0; j < N; ++j)
@@ -115,11 +129,19 @@ void antColony(double **matrix, int N, int **bestOrder, int **currentOrder, doub
 		
 		newPheroMatrix = calloc((N * N), sizeof(double)); // Clear for next time around
 		
-		printf("\n\n");
+		#if VERBOSE == 1
+			printf("\n\n");
+		#endif
+		
 		unchangedTimeSteps += 1; // For testing above code
 	}
 	
 	free(pheroMatrix);
 	free(newPheroMatrix);
 	free(visited);
+}
+
+void antColonyDummy(double **matrix, int N, int **bestOrder, int **currentOrder, double *bestCost)
+{
+	
 }

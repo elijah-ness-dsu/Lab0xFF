@@ -45,3 +45,8 @@ void greedy(double **matrix, int N, int **bestOrder, double *bestTotal)
 	
 	*bestTotal = (*bestTotal) + (*matrix)[(*bestOrder)[N-1]*(N) + 0];
 }
+
+void greedyDummy(double **matrix, int N, int **bestOrder, double *bestTotal)
+{
+	
+}
