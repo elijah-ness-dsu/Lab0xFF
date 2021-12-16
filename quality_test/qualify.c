@@ -1,18 +1,19 @@
 //USER PARAMETERS
 // N_MIN:			The starting nodes in the graph (greater than 4)
 // ROWS:			Maximum number of rows to be printed out
-// trialsCount:		Number of trials to conduct for each given size of N for good average
+// trialsTimeMax:	Maxmimum time in seconds that a trial can take
+// trialsCountMax:	Maximum number of trials that can occur on a given size of N
 
 // GRAPH_TYPE: 0-2 for Random, Euclidean, Circular Euclidean
 // MAX:        0.x-100 (or greater if not displaying) Maximum random number to generate. Euclidean graphs displayed best with 100 or less.
 // RADIUS:	   0.x-50 (or greater if not displaying) Radius of circular graph. Circular graphs best displayed with 50 or less.
-// ALG:		   0-1 for the algorithm to use (Greedy, Ant Colony)
+// ALG:		   0-3 for the algorithm to use (BruteForce, Greedy, Dynamic Programming, Ant Colony)
 #define N_MIN 4
 #define ROWS  100
 
 #include <time.h>
 const clock_t trialsTimeMax = 0.250 * CLOCKS_PER_SEC;
-const int trialsCount = 20;
+const int trialsCountMax = 1000000;
 
 #define GRAPH_TYPE 0
 #define MAX 100.0
@@ -58,6 +59,7 @@ int main ()
 	double theoryDRatioArray[ROWS];
 	
 	// Print Table headers
+	printf("           Graph Size (N)      Avg Experiment Time        Experiment DRatio            Theory DRatio\n");
 	printf("           Graph Size (N)      Avg Experiment Time        Experiment DRatio            Theory DRatio\n");
 	
 	// Create a for loop to double the input size up until nMax is reached
